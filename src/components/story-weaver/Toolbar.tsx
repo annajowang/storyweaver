@@ -1,3 +1,4 @@
+
 // src/components/story-weaver/Toolbar.tsx
 "use client";
 
@@ -5,7 +6,7 @@ import type { FC } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Download, TextCursorInputIcon } from 'lucide-react';
+import { Download, TextCursorInputIcon, BookMarked } from 'lucide-react';
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +17,7 @@ import {
 interface ToolbarProps {
   onExportStory: () => void;
   onExportNotes: () => void;
+  onExportAppendix: () => void;
   fontSize: number;
   onFontSizeChange: (newSize: number) => void;
 }
@@ -23,6 +25,7 @@ interface ToolbarProps {
 export const Toolbar: FC<ToolbarProps> = ({
   onExportStory,
   onExportNotes,
+  onExportAppendix,
   fontSize,
   onFontSizeChange,
 }) => {
@@ -49,7 +52,20 @@ export const Toolbar: FC<ToolbarProps> = ({
             </Button>
           </TooltipTrigger>
           <TooltipContent>
-            <p>Export Notes as .txt</p>
+            <p>Export Chapter Notes as .txt</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="sm" onClick={onExportAppendix} aria-label="Export appendix">
+              <BookMarked className="mr-2 h-4 w-4" /> Appendix
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Export Appendix as .txt</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

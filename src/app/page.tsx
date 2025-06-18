@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 "use client";
 
@@ -25,6 +26,8 @@ const defaultChapter: Chapter = {
   notes: '*Notes for your story*\n\n- Character ideas\n- Plot points',
 };
 
+const defaultAppendixContent: string = '# Appendix\n\nGlobal notes, world-building, character backstories, etc.';
+
 export default function StoryWeaverPage() {
   const { toast } = useToast();
   const [chapters, setChapters, chaptersInitialized] = useLocalStorage<Chapter[]>('storyweaver-chapters', [defaultChapter]);
@@ -33,6 +36,10 @@ export default function StoryWeaverPage() {
     null
   );
   const [fontSize, setFontSize, fontSizeInitialized] = useLocalStorage<number>('storyweaver-fontSize', 16);
+  const [appendixContent, setAppendixContent, appendixContentInitialized] = useLocalStorage<string>(
+    'storyweaver-appendix',
+    defaultAppendixContent
+  );
 
   const [isClient, setIsClient] = useState(false);
 
@@ -96,6 +103,10 @@ export default function StoryWeaverPage() {
     );
   };
 
+  const updateAppendixContent = (content: string) => {
+    setAppendixContent(content);
+  };
+
   const handleExport = (content: string, filename: string) => {
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const link = document.createElement('a');
@@ -110,7 +121,7 @@ export default function StoryWeaverPage() {
 
   const activeChapter = chapters.find((c) => c.id === activeChapterId);
 
-  if (!isClient || !chaptersInitialized || !activeChapterIdInitialized || !fontSizeInitialized) {
+  if (!isClient || !chaptersInitialized || !activeChapterIdInitialized || !fontSizeInitialized || !appendixContentInitialized) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
         <BookOpen className="h-12 w-12 animate-pulse text-primary" />
@@ -145,11 +156,12 @@ export default function StoryWeaverPage() {
               <Toolbar
                 onExportStory={() => handleExport(activeChapter.story, `${activeChapter.name}-story.txt`)}
                 onExportNotes={() => handleExport(activeChapter.notes, `${activeChapter.name}-notes.txt`)}
+                onExportAppendix={() => handleExport(appendixContent, 'Appendix.txt')}
                 fontSize={fontSize}
                 onFontSizeChange={setFontSize}
               />
             )}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-grow min-h-[calc(100vh-180px)]"> {/* Adjust min-h if needed */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-grow min-h-[calc(100vh-180px)]">
               {activeChapter ? (
                 <>
                   <EditorPanel
@@ -165,12 +177,20 @@ export default function StoryWeaverPage() {
                     content={activeChapter.notes}
                     onContentChange={(content) => updateChapterContent('notes', content)}
                     fontSize={fontSize}
-                    placeholder="My brilliant ideas..."
+                    placeholder="My brilliant ideas for this chapter..."
+                    className="min-h-[400px] lg:min-h-0"
+                  />
+                  <EditorPanel
+                    title="Appendix"
+                    content={appendixContent}
+                    onContentChange={updateAppendixContent}
+                    fontSize={fontSize}
+                    placeholder="Global notes, world-building, character backstories..."
                     className="min-h-[400px] lg:min-h-0"
                   />
                 </>
               ) : (
-                <div className="lg:col-span-2 flex flex-col items-center justify-center h-full text-center p-8 bg-card rounded-lg shadow-md">
+                <div className="lg:col-span-3 flex flex-col items-center justify-center h-full text-center p-8 bg-card rounded-lg shadow-md">
                   <BookOpen className="h-16 w-16 text-muted-foreground mb-4" />
                   <h2 className="text-2xl font-semibold mb-2 font-headline">No Chapter Selected</h2>
                   <p className="text-muted-foreground">
